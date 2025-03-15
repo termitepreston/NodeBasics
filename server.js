@@ -74,7 +74,7 @@ function createAndRunServer(host, port) {
 		}
 	});
 
-	// localhost:port
+	// host:port
 	const h = host || process.env.APP_HOST || "localhost";
 	const p = port || process.env.APP_PORT || 3000;
 
