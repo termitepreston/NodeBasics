@@ -2,6 +2,8 @@
 import "dotenv/config";
 import * as http from "node:http";
 import * as fs from "node:fs/promises";
+import express from "express";
+import process from "node:process";
 
 // All the code here documented using JSDoc.
 
@@ -97,4 +99,40 @@ function createAndRunServer(host, port) {
 	});
 }
 
-createAndRunServer();
+function runExpress() {
+	const PORT = process.env.APP_PORT ?? 3000;
+
+	const app = express();
+
+	app.use(express.urlencoded({ extended: true }));
+
+	app.get("/:name", (req, res) => {
+		const { name } = req.params;
+		res
+			.status(200)
+			.set("Content-Type", "text/html")
+			.send(`<h1>Hello, ${name ?? "there"}!`);
+	});
+
+	app.use((req, res) => {
+		res.status(404).send("Not found!");
+	});
+
+	const server = app.listen(PORT, () => {
+		console.log(`Server running on http://localhost:${PORT}.`);
+	});
+
+	const shutdown = async (signal) => {
+		console.log(`Received signal: ${signal}, shutting down gracefully.`);
+		await new Promise((resolve) => server.close(resolve));
+		console.log("Server closed.");
+		process.exit(0);
+	};
+
+	process.on("SIGINT", () => shutdown("SIGINT"));
+	process.on("SIGTERM", () => shutdown("SIGTERM"));
+}
+
+// createAndRunServer();
+
+runExpress();
