@@ -1,13 +1,25 @@
+// According to dotenv docs, in ES6 mode, this will simultaneous load and configure dotenv. No further code needed.
 import "dotenv/config";
 import * as http from "node:http";
 import * as fs from "node:fs/promises";
 
+// All the code here documented using JSDoc.
+
+/* UTILITY FUNCTIONS */
+/**
+ * Info logging function.
+ * @param {string} message The message to be logged.
+ */
 function info(message) {
-	console.log(
+	console.info(
 		`[${process.env.APP_NAME}] [INFO] [${(new Date()).toISOString()}] ${message}`,
 	);
 }
 
+/**
+ * Error logging function.
+ * @param {string} message The message to be logged.
+ */
 function error(message) {
 	console.error(
 		`[${process.env.APP_NAME}] [ERROR] [${(new Date()).toISOString()}] ${message}.`,
@@ -79,12 +91,10 @@ function createAndRunServer(host, port) {
 	const p = port || process.env.APP_PORT || 3000;
 
 	server.listen(p, h, () => {
-		info(`Server is running at http://${h}:${p}...`);
+		info(
+			`Server is running at http://${h}:${p}. Enter 'rs' to reload manually...`,
+		);
 	});
 }
 
-function main() {
-	createAndRunServer();
-}
-
-main();
+createAndRunServer();
