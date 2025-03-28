@@ -104,35 +104,68 @@ function runExpress() {
 
 	const app = express();
 
-	app.use(express.urlencoded({ extended: true }));
+	app.use(express.json());
 
-	app.get("/:name", (req, res) => {
-		const { name } = req.params;
-		res
-			.status(200)
-			.set("Content-Type", "text/html")
-			.send(`<h1>Hello, ${name ?? "there"}!`);
+	const router = express.Router();
+
+	router.use((req, res, next) => {
+		console.log("Router level middleware: Runs for all routes in the router.");
+		next();
 	});
 
-	app.use((req, res) => {
-		res.status(404).send("Not found!");
+	router.get("/users", (req, res) => {
+		res.send("List of users.");
 	});
 
-	const server = app.listen(PORT, () => {
-		console.log(`Server running on http://localhost:${PORT}.`);
+	app.use("/api", router);
+
+	app.listen(3000, () =>
+		console.log(`Server running at http://localhost:${PORT}...`),
+	);
+}
+
+function simpleApi() {
+	const PORT = process.env.APP_PORT ?? 3000;
+
+	const app = express();
+
+	app.use(express.json());
+
+	const router = express.Router();
+
+	router.use((req, res, next) => {
+		console.log(
+			"Router level middleware: runs for all routes in this specific router.",
+		);
+		next();
 	});
 
-	const shutdown = async (signal) => {
-		console.log(`Received signal: ${signal}, shutting down gracefully.`);
-		await new Promise((resolve) => server.close(resolve));
-		console.log("Server closed.");
-		process.exit(0);
-	};
+	router.post("/users", (req, res) => {
+		console.log("req.body = ", req.body);
 
-	process.on("SIGINT", () => shutdown("SIGINT"));
-	process.on("SIGTERM", () => shutdown("SIGTERM"));
+		const { name, age } = req.body;
+
+		res.set("Content-Type", "text/html");
+		res.status(200);
+
+		res.send(`
+			<h1>Hello, ${name}!</h1>
+
+			<p>
+			${age > 18 ? "Welcome, and enjoy your stay" : "You're to young for this."}
+			</p>
+			`);
+	});
+
+	app.use("/api", router);
+
+	app.listen(3000, () =>
+		console.log(`Server running at http://localhost:${PORT}...`),
+	);
 }
 
 // createAndRunServer();
 
-runExpress();
+// runExpress();
+
+simpleApi();
