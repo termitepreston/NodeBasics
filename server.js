@@ -4,6 +4,10 @@ import express from "express";
 import process from "node:process";
 import { getUserById } from "./db.js";
 
+import debug from "debug";
+
+const userDbg = debug("app:user");
+
 // All the code here documented using JSDoc.
 const PORT = process.env.APP_PORT ?? 3000;
 
@@ -22,6 +26,8 @@ app.get("/user/:id", (req, res, next) => {
 		err.status = 404;
 		return next(err);
 	}
+
+	userDbg("User: ", user);
 
 	res.json(user);
 });
